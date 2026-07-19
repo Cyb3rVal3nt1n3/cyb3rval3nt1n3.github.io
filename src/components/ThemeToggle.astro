@@ -1,0 +1,48 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<button
+  id="theme-toggle"
+  class="flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 hover:text-accent transition-colors"
+  aria-label="Toggle theme"
+>
+  <span id="theme-icon-dark" class="hidden">
+    <Icon name="moon" size={16} />
+  </span>
+  <span id="theme-icon-light">
+    <Icon name="sun" size={16} />
+  </span>
+</button>
+
+<script>
+  const STORAGE_KEY = "cyb3rval3nt1n3-theme";
+
+  function getPreferredTheme(): string {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return stored;
+    return window.matchMedia("(prefers-color-scheme: light)").matches
+      ? "light"
+      : "dark";
+  }
+
+  function setTheme(theme: string) {
+    document.documentElement.classList.toggle("light", theme === "light");
+    localStorage.setItem(STORAGE_KEY, theme);
+
+    const moon = document.getElementById("theme-icon-dark");
+    const sun = document.getElementById("theme-icon-light");
+    if (moon && sun) {
+      moon.classList.toggle("hidden", theme === "light");
+      sun.classList.toggle("hidden", theme === "dark");
+    }
+  }
+
+  const theme = getPreferredTheme();
+  setTheme(theme);
+
+  document.getElementById("theme-toggle")?.addEventListener("click", () => {
+    const isLight = document.documentElement.classList.contains("light");
+    setTheme(isLight ? "dark" : "light");
+  });
+</script>
