@@ -1,0 +1,18 @@
+---
+export interface Props {
+  href?: string;
+  variant?: "primary" | "ghost";
+  class?: string;
+  target?: string;
+  rel?: string;
+}
+
+const { href, variant = "primary", class: className = "", target, rel } = Astro.props;
+
+const variantClass = variant === "primary" ? "btn-primary" : "btn-ghost";
+const Tag = href ? "a" : "button";
+---
+
+<Tag href={href} target={target} rel={rel} class:list={[variantClass, className]}>
+  <slot />
+</Tag>

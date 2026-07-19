@@ -1,0 +1,66 @@
+---
+title: "CrimsonVeil"
+description: "A blue-team security operations library integrating network vulnerability scanning, log analysis, and IOC detection into a unified CLI and API."
+tags: ["Python", "Nmap", "FastAPI", "RustScan"]
+techStack: ["Python 3.12", "FastAPI", "Nmap", "RustScan", "Pydantic", "Typer"]
+mitre: ["T1046", "T1059", "T1560", "T1078"]
+github: "https://github.com/Cyb3rVal3nt1n3/CrimsonVeil"
+featured: true
+order: 1
+---
+
+## Overview
+
+CrimsonVeil is a production-grade blue team security operations library built to unify the most common defensive security workflows into a single, well-tested CLI and API. It provides modular tools for network vulnerability scanning, log-based IOC detection, SSH brute-force forensics, and security assessment — all with a consistent interface and high-quality output.
+
+## Architecture
+
+The library follows a layered architecture:
+
+- **CLI layer** — built with Typer, providing intuitive commands for scanning, log analysis, monitoring, and system checks
+- **API layer** — FastAPI-based REST server exposing all CLI functionality as programmable endpoints
+- **Core layer** — modular engine classes that encapsulate tool execution (nmap, rustscan), result parsing, and data transformation
+- **Tool layer** — specialized analysis modules for log parsing, IOC hunting, and vulnerability assessment
+
+Each layer is independently testable and designed for composition rather than inheritance.
+
+## Problem
+
+Security operations teams frequently juggle multiple disjointed tools: one for port scanning, another for log analysis, a third for IOC detection. This fragmented toolchain creates context-switching overhead, inconsistent output formats, and difficulty in correlating findings across sources. CrimsonVeil solves this by providing a unified interface that normalizes results from different tools into structured, queryable data.
+
+## Implementation
+
+The project was implemented in Python with a strong emphasis on type safety and testability. Key implementation decisions include:
+
+- **Pydantic models** for all scan results, log entries, and configuration, ensuring data integrity across layers
+- **Abstract base classes** for tool runners, allowing runtime polymorphism between different scanning engines (nmap vs. RustScan)
+- **Asynchronous API handlers** via FastAPI's async support for non-blocking scan orchestration
+- **Pluggable pattern system** for log analysis, where detection rules are defined declaratively and matched against log streams
+
+## Tech Stack
+
+- **Python 3.12** — modern typing, pattern matching, and performance improvements
+- **FastAPI** — async REST framework with auto-generated OpenAPI docs
+- **Nmap / RustScan** — underlying scanning engines wrapped by abstract runners
+- **Pydantic v2** — data validation and serialization
+- **Typer** — CLI framework for intuitive command-line UX
+- **pytest** — test-driven development with mocked external dependencies
+
+## Lessons Learned
+
+**Abstraction pays off.** The abstract `ScannerRunner` interface made it trivial to add RustScan support alongside the legacy python-nmap wrapper without changing any consumer code.
+
+**Mock external tools in tests.** Network scanning tools are non-deterministic and environment-dependent. Using pytest fixtures to mock `subprocess.run` calls made the test suite fast, reliable, and CI-ready.
+
+**CLI-first, API-second.** Building the CLI interface first forced clean separation of concerns. The API layer became a thin wrapper around the same core logic, preventing duplicated business logic.
+
+## MITRE ATT&CK
+
+| Technique | ID |
+|-----------|-----|
+| Network Service Scanning | T1046 |
+| Command and Scripting Interpreter | T1059 |
+| Archive Collected Data | T1560 |
+| Valid Accounts | T1078 |
+
+

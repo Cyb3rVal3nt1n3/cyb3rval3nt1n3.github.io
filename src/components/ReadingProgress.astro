@@ -1,0 +1,18 @@
+---
+---
+
+<div id="reading-progress" class="fixed top-16 left-0 z-50 h-0.5 w-full" aria-hidden="true">
+  <div class="h-full bg-accent transition-all duration-75" style="width: 0%" />
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>("#reading-progress > div");
+  if (bar) {
+    document.addEventListener("scroll", () => {
+      const scrollTop = document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+      bar.style.width = `${progress}%`;
+    });
+  }
+</script>

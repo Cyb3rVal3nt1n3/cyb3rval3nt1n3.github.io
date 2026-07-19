@@ -1,0 +1,51 @@
+---
+import Base from "../../layouts/Base.astro";
+import Badge from "../../components/Badge.astro";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("research");
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+type Props = {
+  entry: CollectionEntry<"research">;
+};
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<Base title={entry.data.title}>
+  <article class="section pt-32 sm:pt-40">
+    <div class="container-main">
+      <div class="mx-auto max-w-3xl">
+        <Badge variant="accent">{entry.data.date}</Badge>
+
+        <h1 class="mt-4 font-heading text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          {entry.data.title}
+        </h1>
+
+        <p class="mt-4 text-lg leading-relaxed text-zinc-400">
+          {entry.data.summary}
+        </p>
+
+        {entry.data.tags && (
+          <div class="mt-4 flex flex-wrap gap-2">
+            {entry.data.tags.map((tag) => (
+              <Badge>{tag}</Badge>
+            ))}
+          </div>
+        )}
+
+        <div class="prose prose-invert mt-12 max-w-none">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,52 @@
+---
+title: "Mysterious Elephant: A Deep Dive into APT-K-47 Operations"
+summary: "Comprehensive analysis of the South Asian threat actor's tool arsenal, C2 evolution, targeting patterns, and operational security gaps."
+date: "2025-06"
+tags: ["Threat Intelligence", "APT", "China", "TTP Analysis"]
+---
+
+## Overview
+
+Mysterious Elephant (also tracked as APT-K-47 by Knownsec) is a South Asian threat actor first documented in early 2022. This analysis consolidates findings from Kaspersky, Knownsec, and independent researchers into a unified profile covering tooling, infrastructure, targeting, and TTP evolution.
+
+## Actor Profile
+
+The actor operates primarily against government, foreign affairs, and diplomatic entities across South and Southeast Asia. Motivation appears to be geopolitical intelligence gathering rather than financial gain. The group has been active since at least March 2022 and maintains a distinctive toolset centered around the ORPCBackdoor family.
+
+## Tool Arsenal
+
+### ORPCBackdoor
+
+The signature tool of Mysterious Elephant, ORPCBackdoor is a DLL-based backdoor loaded via version.dll hijacking. It evolved through three distinct C2 protocol generations:
+
+1. **Generation 1 (2022):** Custom RPC-based C2 over TCP. Used Windows RPC for both C2 and lateral movement.
+2. **Generation 2 (2023):** HTTPS with custom encryption. Added HTTP/2 support and TLS certificate validation.
+3. **Generation 3 (2024):** WebSocket-based C2 with domain fronting capability. Added support for Cloudflare and CDN-based fronting.
+
+### Supporting Tools
+
+- **SessionManager** — IIS backdoor used for persistence on web servers
+- **Keylogger** — keystroke logging module with clipboard capture
+- **ScreenGrab** — periodic screen capture for credential harvesting
+- **TokenStealer** — Chrome token extraction and cookie harvesting
+
+## Targeting Methodology
+
+The actor follows a consistent intrusion lifecycle:
+
+1. **Initial Access:** Spear phishing with Hajj-themed lures. Attachments use RAR archives with password-protected content to evade scanning.
+2. **Persistence:** version.dll hijacking places ORPCBackdoor as a legitimate-looking DLL next to target executables.
+3. **Lateral Movement:** RPC-based movement using stolen tokens and pass-the-hash techniques.
+4. **Data Exfiltration:** Stolen documents and credentials are exfiltrated over RPC/HTTPS C2 channels.
+
+## Attribution Confidence
+
+Confidence in attribution is **high** based on:
+- Unique ORPCBackdoor code artifacts consistent across all known samples
+- Shared C2 infrastructure (overlapping IP ranges and TLS certificates)
+- Consistent targeting profile (foreign affairs and diplomatic entities)
+- Timing correlation with geopolitical events in South Asia
+
+## Detection
+
+Network indicators: Beacon traffic over TCP port 4443, HTTPS with custom JA3 fingerprint, WebSocket connections with base64-encoded payloads.

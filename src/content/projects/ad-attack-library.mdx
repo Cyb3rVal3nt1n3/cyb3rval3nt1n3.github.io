@@ -1,0 +1,70 @@
+---
+title: "AD Attack Library"
+description: "Comprehensive Active Directory attack technique implementations including Kerberoasting, ACL abuse, DCSync, and delegation attacks."
+tags: ["Python", "LDAP", "Kerberos", "BloodHound"]
+techStack: ["Python 3.12", "impacket", "ldap3", "BloodHound", "Python-RPC"]
+mitre: ["T1558.003", "T1558.004", "T1003.006", "T1484"]
+github: "https://github.com/Cyb3rVal3nt1n3/ad-attack-library"
+featured: true
+order: 3
+---
+
+## Overview
+
+A modular, well-documented library of Active Directory attack technique implementations designed for authorized security assessments. Each technique is implemented as an independent module with standardized input/output interfaces, making it suitable for integration into larger pentesting pipelines or CI/CD-based security validation.
+
+## Architecture
+
+The library is organized by ATT&CK tactic, with each technique as a self-contained class:
+
+```
+ad_attack_library/
+  recon/
+    kerberoast.py       # T1558.003
+    asreproast.py       # T1558.004
+  credential_access/
+    dcsync.py           # T1003.006
+  privilege_escalation/
+    acl_abuse.py        # T1484
+    delegation_abuse.py # T1484
+  persistence/
+    dmsa_badsuccessor.py # T1098
+  core/
+    ldap_client.py
+    rpc_client.py
+    auth_providers.py
+```
+
+## Problem
+
+While tools like impacket and BloodHound exist, they are often designed for interactive use rather than programmatic integration. Security engineers embedding AD attack simulation into CI/CD pipelines or automated validation frameworks need modular, callable libraries with clean APIs, comprehensive error handling, and reusable authentication logic.
+
+## Implementation
+
+Each technique module exposes a uniform interface: `execute(target, credentials, options)` returning a structured result object with success status, extracted data, and diagnostic information. Common infrastructure (LDAP connections, RPC bindings, Kerberos ticket handling) is abstracted into core modules and shared across all techniques.
+
+The authentication provider pattern allows transparent fallback: if password authentication succeeds, it's used; if not, the system falls back to NTLM hash, then Kerberos ticket, without the caller needing to manage authentication logic.
+
+## Tech Stack
+
+- **Python 3.12** — type-safe implementation with dataclasses for result objects
+- **impacket** — low-level protocol implementations for Kerberos, SMB, and MS-RPC
+- **ldap3** — LDAP client with SASL bind and AD-specific attribute handling
+- **BloodHound** — graph-based analysis integration for privilege escalation path identification
+
+## Lessons Learned
+
+**Authentication abstraction is critical.** AD attacks involve multiple authentication protocols (NTLM, Kerberos, Schannel) and credential types (password, hash, ticket). The auth provider abstraction prevented exponential complexity when adding new credential sources.
+
+**Always handle cleanup.** Kerberos ticket caches and TGT handling have non-obvious lifetime semantics. Implementing a context manager pattern for session cleanup prevented credential leakage and stale ticket issues in long-running assessments.
+
+## MITRE ATT&CK
+
+| Technique | ID |
+|-----------|-----|
+| Kerberoasting | T1558.003 |
+| AS-REP Roasting | T1558.004 |
+| DCSync | T1003.006 |
+| Group Policy Abuse | T1484 |
+
+

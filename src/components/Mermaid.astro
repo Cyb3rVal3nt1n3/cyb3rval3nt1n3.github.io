@@ -1,0 +1,21 @@
+---
+export interface Props {
+  chart: string;
+}
+---
+
+<pre class="mermaid" data-chart={Astro.props.chart}>
+  {Astro.props.chart}
+</pre>
+
+<script>
+  const mermaidElements = document.querySelectorAll<HTMLElement>(".mermaid");
+  if (mermaidElements.length > 0) {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js";
+    script.onload = () => {
+      (window as any).mermaid.initialize({ theme: "dark", startOnLoad: true });
+    };
+    document.head.appendChild(script);
+  }
+</script>

@@ -1,0 +1,107 @@
+---
+import Base from "../layouts/Base.astro";
+import FeaturedProjects from "../components/FeaturedProjects.astro";
+import ExpertiseGrid from "../components/ExpertiseGrid.astro";
+import ResearchHighlights from "../components/ResearchHighlights.astro";
+import LatestArticles from "../components/LatestArticles.astro";
+import ContactCTA from "../components/ContactCTA.astro";
+import { expertise } from "../data/site";
+---
+
+<Base title="Home">
+  <section class="section pt-28 sm:pt-32 lg:pt-36">
+    <div class="container-main">
+      <div class="mx-auto max-w-4xl">
+        <div class="flex flex-col items-center text-center sm:items-start sm:text-left">
+
+          <div class="relative mb-8">
+            <div class="flex h-24 w-24 items-center justify-center rounded-full border-2 border-accent/40 bg-card/80 backdrop-blur-sm sm:h-28 sm:w-28">
+              <span class="font-mono text-3xl font-bold text-accent sm:text-4xl">C</span>
+            </div>
+            <div class="absolute -bottom-1 -right-1 flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-bg/90 px-2.5 py-1 backdrop-blur-sm">
+              <span class="status-dot online" />
+              <span class="font-mono text-xs font-medium text-emerald-400">ONLINE</span>
+            </div>
+          </div>
+
+          <div class="terminal-line text-lg sm:text-xl">
+            <span class="text-accent">$</span>
+            <span class="text-zinc-500">whoami</span>
+          </div>
+
+          <h1 class="mt-4 font-heading text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
+            Hello, I'm <span class="gradient-text">cyb3rval3nt1n3</span>
+          </h1>
+
+          <div class="mt-4 h-12">
+            <span id="typewriter" class="font-heading text-2xl text-zinc-400 sm:text-3xl"></span>
+          </div>
+
+          <p class="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-500 sm:text-xl">
+            Breaking systems ethically to build unbreakable security solutions.
+            Threat hunting, detection engineering, and offensive security research
+            — all in a day's work.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-4">
+            <a href="/projects" class="btn-primary">
+              <span class="font-mono text-xs text-accent/70">$</span>
+              ./explore_projects
+            </a>
+            <a href="/blog" class="btn-ghost">
+              <span class="font-mono text-xs text-zinc-600">$</span>
+              ./read_blog
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FeaturedProjects />
+  <ExpertiseGrid entries={expertise} />
+  <ResearchHighlights />
+  <LatestArticles />
+  <ContactCTA />
+</Base>
+
+<script>
+  const roles = [
+    "Threat Hunter",
+    "Detection Engineer",
+    "Security Researcher",
+  ];
+
+  let roleIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  const el = document.getElementById("typewriter");
+
+  function typeEffect() {
+    if (!el) return;
+    const current = roles[roleIndex];
+
+    if (isDeleting) {
+      el.textContent = current.substring(0, charIndex - 1);
+      charIndex--;
+    } else {
+      el.textContent = current.substring(0, charIndex + 1);
+      charIndex++;
+    }
+
+    let delay = isDeleting ? 40 : 80;
+
+    if (!isDeleting && charIndex === current.length) {
+      delay = 2000;
+      isDeleting = true;
+    } else if (isDeleting && charIndex === 0) {
+      isDeleting = false;
+      roleIndex = (roleIndex + 1) % roles.length;
+      delay = 500;
+    }
+
+    setTimeout(typeEffect, delay);
+  }
+
+  typeEffect();
+</script>

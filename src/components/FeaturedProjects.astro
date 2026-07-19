@@ -1,0 +1,27 @@
+---
+import Section from "./Section.astro";
+import ProjectCard from "./ProjectCard.astro";
+import Reveal from "./Reveal.astro";
+import { getCollection } from "astro:content";
+
+const allProjects = await getCollection("projects");
+const projects = allProjects.filter((p) => p.data.featured).sort((a, b) => a.data.order - b.data.order);
+---
+
+<Section id="projects" title="Featured Projects" subtitle="Selected work in security research, tooling, and detection engineering.">
+  <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    {projects.map((project, i) => (
+      <Reveal delay={i * 100}>
+        <ProjectCard project={project} />
+      </Reveal>
+    ))}
+  </div>
+
+  <Reveal delay={projects.length * 100}>
+    <div class="mt-10 text-center">
+      <a href="/projects" class="btn-ghost">
+        View All Projects
+      </a>
+    </div>
+  </Reveal>
+</Section>

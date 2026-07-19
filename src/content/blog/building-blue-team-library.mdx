@@ -1,0 +1,72 @@
+---
+title: "Building a Blue-Team Library from Scratch"
+summary: "Architecture decisions, design patterns, and lessons learned building CrimsonVeil — a production-grade security ops toolkit."
+date: "2025-07"
+category: "Engineering"
+tags: ["Python", "Architecture", "Security Tooling"]
+featured: true
+---
+
+## Why Another Security Tool?
+
+The security tools landscape is crowded — Nmap, Masscan, RustScan, Nessus, OpenVAS. Each solves a specific problem but in isolation. CrimsonVeil was born from the frustration of stitching together disparate tools and normalizing their outputs by hand.
+
+## Guiding Principles
+
+Three non-negotiable design constraints shaped every decision:
+
+1. **Type safety end-to-end.** No raw JSON blobs floating through the system.
+2. **Testability over performance.** A slow correct answer beats a fast wrong one.
+3. **CLI-first, API-second.** The REST layer is a thin wrapper over core logic.
+
+## The Abstract Runner Pattern
+
+The key architectural decision was the `ScannerRunner` abstract class:
+
+```python
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from pathlib import Path
+
+@dataclass
+class ScanResult:
+    host: str
+    port: int
+    service: str
+    version: str | None
+
+class ScannerRunner(ABC):
+    @abstractmethod
+    def scan(self, target: str, ports: str) -> list[ScanResult]:
+        ...
+```
+
+This single interface abstracts over Nmap and RustScan. The CLI and API never know which engine runs underneath. Adding a new scanner is a single class — no changes to consumers.
+
+## Why Pydantic?
+
+Every data structure in CrimsonVeil is a Pydantic model:
+
+```python
+from pydantic import BaseModel
+
+class Host(BaseModel):
+    ip: str
+    hostname: str | None = None
+    os: str | None = None
+    ports: list[Port]
+
+class Port(BaseModel):
+    port: int
+    state: str
+    service: str
+    version: str | None = None
+```
+
+This gives us validation, serialization, and JSON Schema generation for the API docs — free.
+
+## Lessons Learned
+
+**Start with the data model.** The temptation to start with CLI flags or API routes is strong. Starting with data models forced clarity on what the system actually needs to represent.
+
+**Mock subprocess religiously.** Network tools are non-deterministic, rate-limited, and fail in creative ways. A test suite that calls real nmap is not a test suite — it's an integration torture rack.

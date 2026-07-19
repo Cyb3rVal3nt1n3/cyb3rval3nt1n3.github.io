@@ -1,0 +1,26 @@
+---
+import Base from "../../layouts/Base.astro";
+import Section from "../../components/Section.astro";
+import Reveal from "../../components/Reveal.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const projects = await getCollection("projects");
+projects.sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="Projects">
+  <Section class="pt-32 sm:pt-40" title="Projects" subtitle="Security tools, research, and engineering work.">
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {projects.map((project, i) => (
+        <Reveal delay={i * 100}>
+          <ProjectCard project={project} />
+        </Reveal>
+      ))}
+    </div>
+
+    {projects.length === 0 && (
+      <p class="text-center text-zinc-500">No projects yet.</p>
+    )}
+  </Section>
+</Base>

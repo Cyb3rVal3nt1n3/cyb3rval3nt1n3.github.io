@@ -1,0 +1,58 @@
+---
+title: "Threat Hunter Toolkit"
+description: "Automated threat hunting suite combining Sigma rule execution, MITRE ATT&CK mapping, and real-time alert correlation across SIEM platforms."
+tags: ["Sigma", "Python", "Elasticsearch"]
+techStack: ["Python 3.12", "Sigma", "Elasticsearch", "Kibana", "Docker"]
+mitre: ["T1560", "T1059", "T1078"]
+github: "https://github.com/Cyb3rVal3nt1n3/threat-hunter-toolkit"
+featured: true
+order: 2
+---
+
+## Overview
+
+The Threat Hunter Toolkit is an automated hunting platform that operationalizes Sigma detection rules across heterogeneous SIEM environments. It ingests rules from the Sigma repository, translates them to target-backend queries (Elasticsearch KQL, Splunk SPL, Kusto QL), executes them against live telemetry, and correlates results with MITRE ATT&CK techniques.
+
+## Architecture
+
+Three-tier architecture designed for scalability:
+
+- **Rule Engine** — ingests and normalizes Sigma rules from YAML, compiles them to target-specific queries, and manages rule metadata (severity, status, false-positive rate)
+- **Execution Layer** — distributed hunter workers that authenticate to SIEM APIs, execute queries, and collect results with timing and coverage metadata
+- **Correlation Engine** — post-processing pipeline that clusters alerts by technique, deduplicates, enriches with threat intelligence, and scores by confidence
+
+All components communicate via a Redis-backed task queue for horizontal scaling.
+
+## Problem
+
+Security teams struggle with Sigma rule management: rules are maintained by different sources, target different SIEM backends, and generate alerts that must be manually correlated with the MITRE ATT&CK framework. This toolkit automates the entire pipeline — from rule ingestion to enriched, correlated alerts — reducing the mean time to detection from hours to minutes.
+
+## Implementation
+
+Built with a modular plugin architecture. Each SIEM backend is a `QueryTranslator` plugin that implements a common interface: `translate(rule: SigmaRule) -> str`. The execution layer uses asyncio for concurrent query execution, with rate-limit awareness and retry logic.
+
+Alert correlation uses a sliding window approach: alerts within the same 5-minute window that share MITRE techniques are grouped into incidents, enriched with context from the threat intelligence feed, and scored using a weighted confidence formula.
+
+## Tech Stack
+
+- **Python 3.12** — async-first design for scalable query execution
+- **Sigma** — open detection rule format with 1,500+ community rules
+- **Elasticsearch / Kibana** — primary SIEM backend with KQL query translation
+- **Docker** — containerized deployment for worker nodes
+- **Redis** — task queue and result broker
+
+## Lessons Learned
+
+**Schema normalization is the hardest part.** Each SIEM backend has subtle differences in field naming and query syntax. Investing in a robust intermediate representation for Sigma conditions (rather than direct string concatenation) saved months of debugging.
+
+**Rule metadata degrades over time.** False-positive rates and rule effectiveness change as environments evolve. Adding a feedback loop — where analysts can tag alerts as FP/TP and the system adjusts confidence scores — was essential for long-term viability.
+
+## MITRE ATT&CK
+
+| Technique | ID |
+|-----------|-----|
+| Archive Collected Data | T1560 |
+| Command and Scripting Interpreter | T1059 |
+| Valid Accounts | T1078 |
+
+
